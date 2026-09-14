@@ -1,0 +1,26 @@
+node_modules/
+# Build output
+/dist/
+# Local env files (protect secret keys)
+.env
+.env.local
+.env.*.local
+# IDE/editor directories
+.vscode/
+.idea/
+# OS files
+.DS_Store
+Thumbs.db
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+# Temporary files
+.tmp/
+.cache/
+# Vite cache
+node_modules/.vite
+# Miscellaneous
+/.pnp
+.pnp.js
