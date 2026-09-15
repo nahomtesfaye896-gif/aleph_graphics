@@ -11,7 +11,6 @@ const DEFAULT_PRICES: CoursePrices = {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   phone: CONTACT.phone,
-  phoneRaw: CONTACT.phoneRaw,
   phone2: CONTACT.phone2,
   phoneAlt: "",
   whatsapp: CONTACT.whatsapp,
@@ -47,7 +46,6 @@ function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
 
   return {
     phone: typeof raw.phone === "string" ? raw.phone : DEFAULT_SETTINGS.phone,
-    phoneRaw: typeof raw.phoneRaw === "string" ? raw.phoneRaw : DEFAULT_SETTINGS.phoneRaw,
     phone2: typeof raw.phone2 === "string" ? raw.phone2 : DEFAULT_SETTINGS.phone2,
     phoneAlt: typeof raw.phoneAlt === "string" ? raw.phoneAlt : DEFAULT_SETTINGS.phoneAlt,
     whatsapp: typeof raw.whatsapp === "string" ? raw.whatsapp : DEFAULT_SETTINGS.whatsapp,

@@ -170,7 +170,7 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.phone}</p>
-                    <a href={`tel:${settings.phoneRaw}`} className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
+                    <a href={`tel:${settings.phone.replace(/\s+/g, '')}`} className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
                       {displayPhones}
                     </a>
                   </div>

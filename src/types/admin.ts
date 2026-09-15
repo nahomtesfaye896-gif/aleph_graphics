@@ -50,7 +50,6 @@ export type CoursePrices = {
 
 export interface SiteSettings {
   phone: string;
-  phoneRaw: string;
   phone2: string;
   phoneAlt?: string;
   whatsapp: string;

@@ -30,7 +30,7 @@ export function FloatingButtons() {
       </button>
 
       <a
-        href={`tel:${settings.phoneRaw}`}
+        href={`tel:${settings.phone.replace(/\s+/g, '')}`}
         aria-label={t.floating.call}
         className="group flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-xl shadow-brand-600/30 transition-all hover:scale-105 hover:bg-brand-700 sm:hidden"
       >

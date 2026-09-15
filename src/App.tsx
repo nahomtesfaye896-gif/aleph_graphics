@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { fetchSiteSettingsFromSupabase, persistSettingsLocal } from "./utils/siteSettings";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -51,6 +52,14 @@ export default function App() {
   const [isAdminView, setIsAdminView] = useState(() => {
     return window.location.hash === "#admin" || window.location.pathname.startsWith("/admin");
   });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchSiteSettingsFromSupabase().then((data) => {
+      if (data) persistSettingsLocal(data);
+      setSettingsLoaded(true);
+    });
+  }, []);
 
   useEffect(() => {
     const checkRoute = () => {
@@ -70,6 +79,8 @@ export default function App() {
     window.location.hash = "#home";
     setIsAdminView(false);
   };
+
+  if (!settingsLoaded) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <LanguageProvider>

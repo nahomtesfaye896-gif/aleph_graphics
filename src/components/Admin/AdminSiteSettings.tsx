@@ -1,16 +1,25 @@
 ﻿import { useState, useEffect, type FormEvent } from "react";
 import { Loader2, Save } from "lucide-react";
-import { getSiteSettings, saveSiteSettings } from "../../utils/siteSettings";
+import { getSiteSettings, fetchSiteSettingsFromSupabase, persistSettingsLocal } from "../../utils/siteSettings";
 import type { SiteSettings } from "../../types/admin";
+import { api } from "../../lib/api";
 
 export function AdminSiteSettings() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Load fresh settings from memory (already loaded at app start)
-    setSettings(getSiteSettings());
+    // Fetch the latest from the backend, not just memory cache
+    fetchSiteSettingsFromSupabase().then((data) => {
+      if (data) {
+        persistSettingsLocal(data);
+        setSettings(data);
+      } else {
+        setSettings(getSiteSettings());
+      }
+    });
   }, []);
 
   if (!settings) return null;
@@ -19,13 +28,19 @@ export function AdminSiteSettings() {
     e.preventDefault();
     setSaving(true);
     setSuccess(false);
+    setError("");
 
     try {
-      saveSiteSettings(settings);
+      // Send directly to the backend API
+      const response = await api.put<SiteSettings>('/site-settings/', settings);
+      // Update the in-memory cache so the rest of the site picks it up
+      persistSettingsLocal(response);
+      setSettings(response);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error("Save failed:", err);
+      setError(err.message || "Failed to save settings. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -38,7 +53,6 @@ export function AdminSiteSettings() {
       setSettings((s) => s ? { ...s, [key]: value } : null);
     }
   };
-
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -56,16 +70,13 @@ export function AdminSiteSettings() {
             <div>
               <label className="mb-1.5 block text-sm font-medium text-white/70">Primary Phone</label>
               <input type="text" value={settings.phone} onChange={(e) => updateSettings("phone", e.target.value)} placeholder="+251 9XX XXX XXX" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
-            </div>
-            
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-white/70">Phone Raw (For Links)</label>
-              <input type="text" value={settings.phoneRaw} onChange={(e) => updateSettings("phoneRaw", e.target.value)} placeholder="+2519XXXXXXXX" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
+              <p className="mt-1 text-xs text-white/30">This phone number is used everywhere on the site and for call links.</p>
             </div>
             
             <div>
               <label className="mb-1.5 block text-sm font-medium text-white/70">Alternate Phone (Optional)</label>
               <input type="text" value={settings.phoneAlt || ""} onChange={(e) => updateSettings("phoneAlt", e.target.value)} placeholder="+251 9XX XXX XXX" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
+              <p className="mt-1 text-xs text-white/30">Shown only in the Visit Us / Get in Touch section.</p>
             </div>
             
             <div>
@@ -73,9 +84,10 @@ export function AdminSiteSettings() {
               <input type="email" value={settings.email} onChange={(e) => updateSettings("email", e.target.value)} placeholder="info@alephgraphics.et" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
             </div>
 
-            <div className="col-span-full">
+            <div>
               <label className="mb-1.5 block text-sm font-medium text-white/70">Google Maps Link</label>
               <input type="url" value={settings.mapUrl} onChange={(e) => updateSettings("mapUrl", e.target.value)} placeholder="https://maps.google.com/?q=Bole+Road+Edna+Mall+Addis+Ababa" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
+              <p className="mt-1 text-xs text-white/30">Paste the full Google Maps URL. The address text is auto-extracted from the link.</p>
             </div>
           </div>
 
@@ -89,12 +101,12 @@ export function AdminSiteSettings() {
 
             <div className="col-span-full grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/70">Opening Time (ETH Time)</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/70">Opening Time (Ethiopian Time)</label>
                 <input type="time" value={settings.workingHoursStart || ""} onChange={(e) => updateSettings("workingHoursStart", e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-brand-500" />
               </div>
               
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/70">Closing Time (ETH Time)</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/70">Closing Time (Ethiopian Time)</label>
                 <input type="time" value={settings.workingHoursEnd || ""} onChange={(e) => updateSettings("workingHoursEnd", e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-brand-500" />
               </div>
             </div>
@@ -119,7 +131,7 @@ export function AdminSiteSettings() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-white/70">Telegram Channel/Username</label>
+              <label className="mb-1.5 block text-sm font-medium text-white/70">Telegram Channel</label>
               <input type="url" value={settings.social.telegram || ""} onChange={(e) => updateSettings("telegram", e.target.value)} placeholder="https://t.me/alephgraphics" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-brand-500" />
             </div>
 
@@ -135,7 +147,8 @@ export function AdminSiteSettings() {
           </div>
 
           <div className="flex items-center justify-end gap-4 border-t border-white/10 pt-6">
-            {success && <span className="text-sm font-medium text-emerald-400">Settings saved successfully!</span>}
+            {success && <span className="text-sm font-medium text-emerald-400">✓ Settings saved and applied to the live site!</span>}
+            {error && <span className="text-sm font-medium text-red-400">{error}</span>}
             <button
               type="submit"
               disabled={saving}
