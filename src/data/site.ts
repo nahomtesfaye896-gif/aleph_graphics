@@ -5,7 +5,7 @@ export const CONTACT = {
   whatsapp: "251928745053",
   telegram: "nahom_t8",
   email: "info@alephgraphics.et",
-  mapUrl: "https://maps.google.com/?q=Bole+Road+Edna+Mall+Addis+Ababa",
+  mapUrl: "https://www.google.com/maps/place/Tsega+event+and+communication/@9.0315052,38.7618636,914m/data=!3m2!1e3!4b1!4m6!3m5!1s0x164b85b5eea6ab89:0xb5fa874f5e18ec7f!8m2!3d9.0315052!4d38.7618636!16s%2Fg%2F11ydwh329v!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
   social: {
     facebook: "https://facebook.com/alephgraphicsacademy",
     instagram: "https://instagram.com/alephgraphicsacademy",
