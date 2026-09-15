@@ -175,7 +175,7 @@ const en = {
     title: "Visit us or get in touch",
     subtitle: "Our campus is in the heart of Addis Ababa. Come see the lab, meet the instructors and start your creative journey.",
     address: "Address",
-    addressValue: "Bole Road, Near Edna Mall, 3rd Floor, Addis Ababa, Ethiopia",
+    addressValue: "Tsega event and communication",
     phone: "Phone",
     email: "Email",
     hours: "Working Hours",

@@ -11,14 +11,14 @@ const DEFAULT_PRICES: CoursePrices = {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   phone: CONTACT.phone,
-  phone2: CONTACT.phone2,
+  phone2: "",
   phoneAlt: "",
-  whatsapp: CONTACT.whatsapp,
+  whatsapp: "",
   telegram: CONTACT.telegram,
   email: CONTACT.email,
   mapUrl: CONTACT.mapUrl,
   logoImage: "",
-  addressEn: "Bole Road, Near Edna Mall, 3rd Floor, Addis Ababa, Ethiopia",
+  addressEn: "Tsega event and communication",
   addressAm: "ቦሌ መንገድ፣ ኤድና ሞል አጠገብ፣ 3ኛ ፎቅ፣ አዲስ አበባ፣ ኢትዮጵያ",
   workingHoursStart: "08:30",
   workingHoursEnd: "17:30",
