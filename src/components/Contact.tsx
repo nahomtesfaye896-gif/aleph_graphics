@@ -139,7 +139,8 @@ export function Contact() {
   const statusObj = getWorkingHoursStatus();
   const generatedAddress = getMapAddress(settings.mapUrl);
   // Prioritize generated address if mapUrl exists, fallback to manual or default
-  const displayAddress = generatedAddress || (lang === 'am' ? settings.addressAm : settings.addressEn) || t.contact.addressValue;
+  const manualAddress = lang === 'am' ? settings.addressAm : settings.addressEn;
+  const displayAddress = (manualAddress && manualAddress.trim() !== '') ? manualAddress : (generatedAddress || t.contact.addressValue);
   const validPhones = [settings.phone, settings.phoneAlt].filter((p): p is string => typeof p === "string" && p.trim().length > 0);
 
   return (
