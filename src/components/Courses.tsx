@@ -3,7 +3,7 @@ import { ArrowRight, Check, Clapperboard, Image as ImageIcon, Palette, PenTool, 
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { useLang } from "../i18n/LanguageContext";
-import { COURSES, type CourseKey, type CourseMeta } from "../data/site";
+import { COURSES, type CourseMeta } from "../data/site";
 import { cn } from "../utils/cn";
 import { api } from "../lib/api";
 

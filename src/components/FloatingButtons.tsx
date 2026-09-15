@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { ArrowUp, Phone } from "lucide-react";
 import { useLang } from "../i18n/LanguageContext";
-import { CONTACT } from "../data/site";
+import { getSiteSettings } from "../utils/siteSettings";
 import { cn } from "../utils/cn";
 
 export function FloatingButtons() {
   const { t } = useLang();
   const [showTop, setShowTop] = useState(false);
+  const settings = getSiteSettings();
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 600);
@@ -29,7 +30,7 @@ export function FloatingButtons() {
       </button>
 
       <a
-        href={`tel:${CONTACT.phoneRaw}`}
+        href={`tel:${settings.phoneRaw}`}
         aria-label={t.floating.call}
         className="group flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-xl shadow-brand-600/30 transition-all hover:scale-105 hover:bg-brand-700 sm:hidden"
       >

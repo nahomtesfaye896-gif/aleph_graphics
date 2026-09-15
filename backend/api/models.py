@@ -46,6 +46,10 @@ class SiteSettings(models.Model):
     address_am = models.CharField(max_length=500, blank=True, null=True)
     prices = models.JSONField(default=dict)
     social = models.JSONField(default=dict)
+    phone_alt = models.CharField(max_length=255, blank=True, null=True)
+    working_hours_start = models.CharField(max_length=10, blank=True, null=True)
+    working_hours_end = models.CharField(max_length=10, blank=True, null=True)
+    working_days = models.CharField(max_length=100, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

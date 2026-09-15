@@ -3,16 +3,17 @@ import { CONTACT, COURSES } from "../data/site";
 import { api } from "../lib/api";
 
 const DEFAULT_PRICES: CoursePrices = {
-  photoshop: COURSES.find((c) => c.key === "photoshop")?.feeETB ?? "6,500",
-  illustrator: COURSES.find((c) => c.key === "illustrator")?.feeETB ?? "6,500",
-  graphic: COURSES.find((c) => c.key === "graphic")?.feeETB ?? "14,000",
-  video: COURSES.find((c) => c.key === "video")?.feeETB ?? "9,000",
+  photoshop: COURSES.find((c) => c.key === "photoshop")?.feeEtb ?? "6,500",
+  illustrator: COURSES.find((c) => c.key === "illustrator")?.feeEtb ?? "6,500",
+  graphic: COURSES.find((c) => c.key === "graphic")?.feeEtb ?? "14,000",
+  video: COURSES.find((c) => c.key === "video")?.feeEtb ?? "9,000",
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   phone: CONTACT.phone,
   phoneRaw: CONTACT.phoneRaw,
   phone2: CONTACT.phone2,
+  phoneAlt: "",
   whatsapp: CONTACT.whatsapp,
   telegram: CONTACT.telegram,
   email: CONTACT.email,
@@ -20,6 +21,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   logoImage: "",
   addressEn: "Bole Road, Near Edna Mall, 3rd Floor, Addis Ababa, Ethiopia",
   addressAm: "ቦሌ መንገድ፣ ኤድና ሞል አጠገብ፣ 3ኛ ፎቅ፣ አዲስ አበባ፣ ኢትዮጵያ",
+  workingHoursStart: "08:30",
+  workingHoursEnd: "17:30",
+  workingDays: "Mon-Sat",
   prices: { ...DEFAULT_PRICES },
   social: { ...CONTACT.social },
 };
@@ -45,6 +49,7 @@ function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
     phone: typeof raw.phone === "string" ? raw.phone : DEFAULT_SETTINGS.phone,
     phoneRaw: typeof raw.phoneRaw === "string" ? raw.phoneRaw : DEFAULT_SETTINGS.phoneRaw,
     phone2: typeof raw.phone2 === "string" ? raw.phone2 : DEFAULT_SETTINGS.phone2,
+    phoneAlt: typeof raw.phoneAlt === "string" ? raw.phoneAlt : DEFAULT_SETTINGS.phoneAlt,
     whatsapp: typeof raw.whatsapp === "string" ? raw.whatsapp : DEFAULT_SETTINGS.whatsapp,
     telegram: typeof raw.telegram === "string" ? raw.telegram : DEFAULT_SETTINGS.telegram,
     email: typeof raw.email === "string" ? raw.email : DEFAULT_SETTINGS.email,
@@ -52,6 +57,9 @@ function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
     logoImage: typeof raw.logoImage === "string" ? raw.logoImage : DEFAULT_SETTINGS.logoImage,
     addressEn: typeof raw.addressEn === "string" ? raw.addressEn : DEFAULT_SETTINGS.addressEn,
     addressAm: typeof raw.addressAm === "string" ? raw.addressAm : DEFAULT_SETTINGS.addressAm,
+    workingHoursStart: typeof raw.workingHoursStart === "string" ? raw.workingHoursStart : DEFAULT_SETTINGS.workingHoursStart,
+    workingHoursEnd: typeof raw.workingHoursEnd === "string" ? raw.workingHoursEnd : DEFAULT_SETTINGS.workingHoursEnd,
+    workingDays: typeof raw.workingDays === "string" ? raw.workingDays : DEFAULT_SETTINGS.workingDays,
     prices,
     social,
   };

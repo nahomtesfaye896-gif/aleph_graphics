@@ -1,4 +1,4 @@
-import { CONTACT } from "../data/site";
+﻿import { getSiteSettings } from "../utils/siteSettings";
 import { cn } from "../utils/cn";
 
 type IconProps = { className?: string };
@@ -67,21 +67,26 @@ interface SocialLinksProps {
 
 export function SocialLinks({ className, itemClassName, size = "md" }: SocialLinksProps) {
   const iconCls = size === "sm" ? "h-4 w-4" : "h-5 w-5";
+  const settings = getSiteSettings();
+  const social = settings.social;
+
   const links = [
-    { name: "Facebook", href: CONTACT.social.facebook, Icon: FacebookIcon, hover: "hover:bg-[#1877F2]" },
-    { name: "Instagram", href: CONTACT.social.instagram, Icon: InstagramIcon, hover: "hover:bg-[#E4405F]" },
-    { name: "TikTok", href: CONTACT.social.tiktok, Icon: TikTokIcon, hover: "hover:bg-black" },
-    { name: "Telegram", href: CONTACT.social.telegram, Icon: TelegramIcon, hover: "hover:bg-[#26A5E4]" },
-    { name: "YouTube", href: CONTACT.social.youtube, Icon: YoutubeIcon, hover: "hover:bg-[#FF0000]" },
-    { name: "LinkedIn", href: CONTACT.social.linkedin, Icon: LinkedinIcon, hover: "hover:bg-[#0A66C2]" },
-  ];
+    { name: "Facebook", href: social?.facebook, Icon: FacebookIcon, hover: "hover:bg-[#1877F2]" },
+    { name: "Instagram", href: social?.instagram, Icon: InstagramIcon, hover: "hover:bg-[#E4405F]" },
+    { name: "TikTok", href: social?.tiktok, Icon: TikTokIcon, hover: "hover:bg-black" },
+    { name: "Telegram", href: social?.telegram, Icon: TelegramIcon, hover: "hover:bg-[#26A5E4]" },
+    { name: "YouTube", href: social?.youtube, Icon: YoutubeIcon, hover: "hover:bg-[#FF0000]" },
+    { name: "LinkedIn", href: social?.linkedin, Icon: LinkedinIcon, hover: "hover:bg-[#0A66C2]" },
+  ].filter(link => link.href && link.href.trim() !== "");
+
+  if (links.length === 0) return null;
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2.5", className)}>
       {links.map(({ name, href, Icon, hover }) => (
         <a
           key={name}
-          href={href}
+          href={href!}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={name}

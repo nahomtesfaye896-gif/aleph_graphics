@@ -4,10 +4,12 @@ import { Logo } from "./Logo";
 import { Reveal } from "./Reveal";
 import { SocialLinks } from "./SocialIcons";
 import { useLang } from "../i18n/LanguageContext";
-import { CONTACT, COURSES, type CourseMeta } from "../data/site";
+import { COURSES, type CourseMeta } from "../data/site";
+import { getSiteSettings } from "../utils/siteSettings";
 import { api } from "../lib/api";
 
 export function CTA() {
+  const settings = getSiteSettings();
   const { t } = useLang();
   return (
     <section className="relative bg-white px-4 pb-20 sm:px-6 lg:px-8">
@@ -23,9 +25,9 @@ export function CTA() {
               {t.cta.button}
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
-            <a href={`tel:${CONTACT.phoneRaw}`} className="inline-flex items-center gap-2 rounded-full border-2 border-white/60 px-8 py-3.5 text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10">
+            <a href={`tel:${settings.phoneRaw}`} className="inline-flex items-center gap-2 rounded-full border-2 border-white/60 px-8 py-3.5 text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10">
               <Phone className="h-5 w-5" />
-              {CONTACT.phone}
+              {settings.phone}
             </a>
           </div>
         </div>
@@ -35,6 +37,7 @@ export function CTA() {
 }
 
 export function Footer() {
+  const settings = getSiteSettings();
   const { t, lang } = useLang();
   const year = new Date().getFullYear();
   const [courses, setCourses] = useState<CourseMeta[]>([]);
@@ -111,18 +114,18 @@ export function Footer() {
             <ul className="mt-5 space-y-3.5 text-sm text-white/70">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
-                <span>{t.contact.addressValue}</span>
+                <span>{settings.addressEn || t.contact.addressValue}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-brand-400" />
-                <a href={`tel:${CONTACT.phoneRaw}`} className="hover:text-white">
-                  {CONTACT.phone}
+                <a href={`tel:${settings.phoneRaw}`} className="hover:text-white">
+                  {settings.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-brand-400" />
-                <a href={`mailto:${CONTACT.email}`} className="hover:text-white">
-                  {CONTACT.email}
+                <a href={`mailto:${settings.email}`} className="hover:text-white">
+                  {settings.email}
                 </a>
               </li>
             </ul>

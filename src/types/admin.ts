@@ -1,4 +1,4 @@
-export interface Applicant {
+﻿export interface Applicant {
   id: string;
   name: string;
   phone: string;
@@ -52,6 +52,7 @@ export interface SiteSettings {
   phone: string;
   phoneRaw: string;
   phone2: string;
+  phoneAlt?: string;
   whatsapp: string;
   telegram: string;
   email: string;
@@ -59,8 +60,32 @@ export interface SiteSettings {
   logoImage: string;
   addressEn: string;
   addressAm: string;
+  workingHoursStart?: string;
+  workingHoursEnd?: string;
+  workingDays?: string;
   prices: CoursePrices;
   social: SocialMediaLinks;
+}
+
+export interface CourseMeta {
+  id?: string;
+  key: string;
+  nameEn: string;
+  nameAm?: string;
+  taglineEn?: string;
+  taglineAm?: string;
+  descEn?: string;
+  descAm?: string;
+  longEn?: string;
+  longAm?: string;
+  learnEn?: string[];
+  learnAm?: string[];
+  tools: string[];
+  image: string;
+  accent: string;
+  feeEtb?: string;
+  popular?: boolean;
+  sortOrder?: number;
 }
 
 export interface StudentComment {

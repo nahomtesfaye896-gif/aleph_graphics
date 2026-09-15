@@ -24,7 +24,8 @@ import {
   Users,
   X,
   XCircle,
-  BookOpen
+  BookOpen,
+  Settings
 } from "lucide-react";
 import { Logo } from "../Logo";
 import type { Applicant, SavedPassword } from "../../types/admin";
@@ -43,6 +44,7 @@ import {
   updateApplicantStatus,
 } from "../../utils/adminStorage";
 import { AdminCourses } from "./AdminCourses";
+import { AdminSiteSettings } from "./AdminSiteSettings";
 
 interface AdminPanelProps {
   onBackToSite?: () => void;
@@ -62,7 +64,7 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
   const [loginError, setLoginError] = useState("");
 
   // Tab state: "applicants" | "passwords" | "settings" | "courses"
-  const [activeTab, setActiveTab] = useState<"applicants" | "passwords" | "settings" | "courses">("applicants");
+  const [activeTab, setActiveTab] = useState<"applicants" | "passwords" | "settings" | "courses" | "site-settings">("applicants");
 
   // Data states
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -425,6 +427,17 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
             }`}
           >
             <BookOpen className="h-4 w-4" /> Manage Courses
+          </button>
+
+          <button
+            onClick={() => setActiveTab("site-settings")}
+            className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-all ${
+              activeTab === "site-settings"
+                ? "bg-brand-600 text-white shadow-lg shadow-brand-600/30"
+                : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+            }`}
+          >
+            <Settings className="h-4 w-4" /> Site Settings
           </button>
         </div>
 
@@ -1061,6 +1074,13 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
         {/* ========================================================= */}
         {activeTab === "courses" && (
           <AdminCourses />
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 5: SITE SETTINGS */}
+        {/* ========================================================= */}
+        {activeTab === "site-settings" && (
+          <AdminSiteSettings />
         )}
       </main>
     </div>

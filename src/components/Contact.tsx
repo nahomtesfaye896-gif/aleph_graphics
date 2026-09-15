@@ -1,12 +1,14 @@
-import { useState, type FormEvent } from "react";
+﻿import { useState, useEffect, type FormEvent } from "react";
 import { CheckCircle2, Clock, Loader2, Mail, MapPin, Phone, Send } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { SocialLinks } from "./SocialIcons";
 import { useLang } from "../i18n/LanguageContext";
-import { CONTACT, COURSES } from "../data/site";
 import { cn } from "../utils/cn";
 import { addApplicant } from "../utils/adminStorage";
+import { api } from "../lib/api";
+import { getSiteSettings } from "../utils/siteSettings";
+import type { CourseMeta } from "../types/admin";
 
 interface FormState {
   name: string;
@@ -26,6 +28,20 @@ export function Contact() {
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+  const [courses, setCourses] = useState<CourseMeta[]>([]);
+  const settings = getSiteSettings();
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await api.get<CourseMeta[]>('/courses/');
+        if (data && data.length > 0) {
+          setCourses(data);
+        }
+      } catch (err) {}
+    }
+    loadData();
+  }, []);
 
   const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -42,8 +58,8 @@ export function Contact() {
   };
 
   const courseName = (key: string) => {
-    const c = COURSES.find((c) => c.key === key);
-    return c ? t.courses.items[c.key].name : "";
+    const c = courses.find((c) => c.key === key || c.id === key);
+    return c ? (lang === "am" && c.nameAm ? c.nameAm : c.nameEn) : "";
   };
 
   const onSubmit = (e: FormEvent) => {
@@ -71,6 +87,52 @@ export function Contact() {
       hasError ? "border-red-400 focus:border-red-500 focus:ring-red-100" : "border-ink-900/10 focus:border-brand-500 focus:ring-brand-100",
     );
 
+  const getWorkingHoursStatus = () => {
+    if (!settings.workingHoursStart || !settings.workingHoursEnd) return null;
+    
+    // Get current time in Ethiopia (UTC+3)
+    const now = new Date();
+    const ethiopiaTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3 * 3600000));
+    
+    const currentHours = ethiopiaTime.getHours();
+    const currentMinutes = ethiopiaTime.getMinutes();
+    const currentTime = currentHours * 60 + currentMinutes;
+    
+    const [startH, startM] = settings.workingHoursStart.split(':').map(Number);
+    const [endH, endM] = settings.workingHoursEnd.split(':').map(Number);
+    
+    const startTime = (startH * 60) + (startM || 0);
+    const endTime = (endH * 60) + (endM || 0);
+    
+    // Simple day check (Mon-Sat = 1-6)
+    const day = ethiopiaTime.getDay();
+    const isWorkingDay = day !== 0; // Assuming Sunday is closed
+    
+    if (isWorkingDay && currentTime >= startTime && currentTime < endTime) {
+      return { isOpen: true, text: lang === 'am' ? 'ክፍት ነው' : 'Open Now' };
+    }
+    return { isOpen: false, text: lang === 'am' ? 'ዝግ ነው' : 'Closed' };
+  };
+
+  const getMapAddress = (url: string) => {
+    if (!url) return '';
+    try {
+      const parsedUrl = new URL(url);
+      const query = parsedUrl.searchParams.get('q') || parsedUrl.searchParams.get('query');
+      if (query) {
+        return query.split('+').join(' ');
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return '';
+  };
+
+  const statusObj = getWorkingHoursStatus();
+  const generatedAddress = getMapAddress(settings.mapUrl);
+  const displayAddress = (lang === 'am' ? settings.addressAm : settings.addressEn) || generatedAddress || t.contact.addressValue;
+  const displayPhones = [settings.phone, settings.phone2, settings.phoneAlt].filter(Boolean).join('  ·  ');
+
   return (
     <section id="contact" className="relative overflow-hidden bg-white py-20 lg:py-28">
       <div className="pointer-events-none absolute -right-32 top-32 h-96 w-96 rounded-full bg-brand-100/70 blur-3xl" />
@@ -85,28 +147,67 @@ export function Contact() {
               <div className="bg-grid-dark pointer-events-none absolute inset-0 opacity-70" />
               <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-600/40 blur-3xl" />
               <div className="relative space-y-6">
-                {[
-                  { Icon: MapPin, label: t.contact.address, value: t.contact.addressValue, href: CONTACT.mapUrl },
-                  { Icon: Phone, label: t.contact.phone, value: `${CONTACT.phone}  ·  ${CONTACT.phone2}`, href: `tel:${CONTACT.phoneRaw}` },
-                  { Icon: Mail, label: t.contact.email, value: CONTACT.email, href: `mailto:${CONTACT.email}` },
-                  { Icon: Clock, label: t.contact.hours, value: `${t.contact.hoursValue}\n${t.contact.hoursSunday}` },
-                ].map(({ Icon, label, value, href }) => (
-                  <div key={label} className="flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{label}</p>
-                      {href ? (
-                        <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
-                          {value}
-                        </a>
-                      ) : (
-                        <p className="mt-1 whitespace-pre-line text-sm font-medium leading-relaxed text-white/90">{value}</p>
-                      )}
-                    </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600">
+                    <MapPin className="h-5 w-5" />
                   </div>
-                ))}
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.address}</p>
+                    {settings.mapUrl ? (
+                      <a href={settings.mapUrl} target="_blank" rel="noopener noreferrer" className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
+                        {displayAddress}
+                      </a>
+                    ) : (
+                      <p className="mt-1 whitespace-pre-line text-sm font-medium leading-relaxed text-white/90">{displayAddress}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.phone}</p>
+                    <a href={`tel:${settings.phoneRaw}`} className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
+                      {displayPhones}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.email}</p>
+                    <a href={`mailto:${settings.email}`} className="mt-1 block whitespace-pre-line text-sm font-medium leading-relaxed text-white/90 hover:text-white hover:underline">
+                      {settings.email}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300 flex items-center gap-2">
+                      {t.contact.hours}
+                      {statusObj && (
+                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", statusObj.isOpen ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400")}>
+                          {statusObj.text}
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-1 whitespace-pre-line text-sm font-medium leading-relaxed text-white/90">
+                      {settings.workingDays || 'Mon-Sat'}: {settings.workingHoursStart} - {settings.workingHoursEnd}
+                      <br />
+                      Sunday: Closed
+                    </p>
+                  </div>
+                </div>
 
                 <div className="border-t border-white/10 pt-6">
                   <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.follow}</p>
@@ -116,23 +217,25 @@ export function Contact() {
             </div>
 
             {/* Map */}
-            <a
-              href={CONTACT.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-5 flex items-center justify-between rounded-2xl border border-ink-900/5 bg-slate-50 p-4 transition-all hover:border-brand-200 hover:bg-brand-50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm ring-1 ring-ink-900/5">
-                  <MapPin className="h-5 w-5" />
+            {settings.mapUrl && (
+              <a
+                href={settings.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group mt-5 flex items-center justify-between rounded-2xl border border-ink-900/5 bg-slate-50 p-4 transition-all hover:border-brand-200 hover:bg-brand-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm ring-1 ring-ink-900/5">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-ink-900">{t.contact.map}</p>
+                    <p className="text-xs text-ink-700/70">{displayAddress.split(',')[0] || generatedAddress || 'Our Location'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-ink-900">{t.contact.map}</p>
-                  <p className="text-xs text-ink-700/70">Bole, Addis Ababa</p>
-                </div>
-              </div>
-              <Send className="h-4 w-4 text-brand-600 transition-transform group-hover:translate-x-1" />
-            </a>
+                <Send className="h-4 w-4 text-brand-600 transition-transform group-hover:translate-x-1" />
+              </a>
+            )}
           </Reveal>
 
           {/* Registration form */}
@@ -197,11 +300,14 @@ export function Contact() {
                     </label>
                     <select id="course" value={form.course} onChange={set("course")} className={cn(inputCls(errors.course), "appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%231f2937%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:16px] bg-[right_14px_center] bg-no-repeat pr-10")}>
                       <option value="">{t.form.coursePh}</option>
-                      {COURSES.map((c) => (
-                        <option key={c.key} value={c.key}>
-                          {t.courses.items[c.key].name} — {c.weeks} {t.courses.weeks}
-                        </option>
-                      ))}
+                      {courses.map((c) => {
+                        const name = lang === "am" && c.nameAm ? c.nameAm : c.nameEn;
+                        return (
+                          <option key={c.id || c.key} value={c.id || c.key}>
+                            {name}
+                          </option>
+                        );
+                      })}
                     </select>
                     {errors.course && <p className="mt-1.5 text-xs font-medium text-red-600">{errors.course}</p>}
                   </div>

@@ -19,10 +19,14 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     logoImage = serializers.CharField(source='logo_image', required=False, allow_blank=True, allow_null=True)
     addressEn = serializers.CharField(source='address_en', required=False, allow_blank=True, allow_null=True)
     addressAm = serializers.CharField(source='address_am', required=False, allow_blank=True, allow_null=True)
+    phoneAlt = serializers.CharField(source='phone_alt', required=False, allow_blank=True, allow_null=True)
+    workingHoursStart = serializers.CharField(source='working_hours_start', required=False, allow_blank=True, allow_null=True)
+    workingHoursEnd = serializers.CharField(source='working_hours_end', required=False, allow_blank=True, allow_null=True)
+    workingDays = serializers.CharField(source='working_days', required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = SiteSettings
-        fields = ['id', 'phone', 'phoneRaw', 'phone2', 'whatsapp', 'telegram', 'email', 'mapUrl', 'logoImage', 'addressEn', 'addressAm', 'prices', 'social']
+        fields = ['id', 'phone', 'phoneRaw', 'phone2', 'phoneAlt', 'whatsapp', 'telegram', 'email', 'mapUrl', 'logoImage', 'addressEn', 'addressAm', 'prices', 'social', 'workingHoursStart', 'workingHoursEnd', 'workingDays']
 
 class SavedPasswordSerializer(serializers.ModelSerializer):
     serviceName = serializers.CharField(source='service_name')
