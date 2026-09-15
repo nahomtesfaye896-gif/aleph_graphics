@@ -50,6 +50,11 @@ class SiteSettings(models.Model):
     working_hours_start = models.CharField(max_length=10, blank=True, null=True)
     working_hours_end = models.CharField(max_length=10, blank=True, null=True)
     working_days = models.CharField(max_length=100, blank=True, null=True)
+    
+    sat_hours_start = models.CharField(max_length=10, blank=True, null=True)
+    sat_hours_end = models.CharField(max_length=10, blank=True, null=True)
+    sun_hours_start = models.CharField(max_length=10, blank=True, null=True)
+    sun_hours_end = models.CharField(max_length=10, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

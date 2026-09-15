@@ -4,17 +4,12 @@ import {
   Check,
   CheckCircle,
   Clock,
-  Copy,
-  Eye,
-  EyeOff,
-  Filter,
+    Eye,
+    Filter,
   Key,
-  KeyRound,
-  Lock,
+    Lock,
   LogOut,
-  Plus,
-  RefreshCw,
-  Search,
+      Search,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -28,18 +23,18 @@ import {
   Settings
 } from "lucide-react";
 import { Logo } from "../Logo";
-import type { Applicant, SavedPassword } from "../../types/admin";
+import type { Applicant } from "../../types/admin";
 import {
-  addSavedPassword,
+  
   deleteApplicant,
-  deleteSavedPassword,
+  
   fetchApplicantsFromSupabase,
-  generateRandomPassword,
+  
   hasAdminUserOnServer,
   setupAdmin,
   verifyLogin,
   getApplicants,
-  getSavedPasswords,
+  
   updateAdminPassword,
   updateApplicantStatus,
 } from "../../utils/adminStorage";
@@ -68,27 +63,11 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
 
   // Data states
   const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [passwords, setPasswords] = useState<SavedPassword[]>([]);
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
 
   // Filter / Search states for applicants
   const [applicantSearch, setApplicantSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
-
-  // Password Generator states
-  const [genLength, setGenLength] = useState(16);
-  const [generatedPass, setGeneratedPass] = useState("");
-
-
-  // New Credential Form
-  const [showAddPassModal, setShowAddPassModal] = useState(false);
-  const [newServiceName, setNewServiceName] = useState("");
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newCategory, setNewCategory] = useState<SavedPassword["category"]>("Other");
-
-  // Visible password toggles
-  const [visiblePassIds, setVisiblePassIds] = useState<Record<string, boolean>>({});
 
   // Change Admin Password state
   const [currentPass, setCurrentPass] = useState("");
@@ -108,8 +87,6 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
     if (authStatus === "authenticated") {
       setApplicants(getApplicants());
       fetchApplicantsFromSupabase().then((data) => setApplicants(data));
-      setPasswords(getSavedPasswords());
-      setGeneratedPass(generateRandomPassword(16));
     }
   }, [authStatus]);
 
@@ -157,46 +134,6 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
       const updated = deleteApplicant(id);
       setApplicants(updated);
       showToast(`Registration for "${name}" deleted`);
-    }
-  };
-
-  // Password Generator Handler
-  const handleGeneratePassword = () => {
-    const p = generateRandomPassword(genLength);
-    setGeneratedPass(p);
-  };
-
-  const copyToClipboard = (text: string, label: string = "Password") => {
-    navigator.clipboard.writeText(text).catch(() => {});
-    showToast(`${label} copied to clipboard!`);
-  };
-
-  // Add Saved Credential
-  const handleAddCredential = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newServiceName || !newUsername || !newPassword) return;
-    addSavedPassword({
-      serviceName: newServiceName,
-      username: newUsername,
-      password: newPassword,
-      category: newCategory,
-    }, loginPass).then((updatedData) => {
-      setPasswords(updatedData);
-      setNewServiceName("");
-      setNewUsername("");
-      setNewPassword("");
-      setShowAddPassModal(false);
-      showToast(`Saved credentials for "${newServiceName}"`);
-    });
-  };
-
-  // Delete Saved Credential
-  const handleDeleteCredential = (id: string, name: string) => {
-    if (window.confirm(`Delete password for "${name}"?`)) {
-      deleteSavedPassword(id, loginPass).then(updated => {
-        setPasswords(updated);
-        showToast(`Credential for "${name}" removed`);
-      });
     }
   };
 
@@ -744,244 +681,6 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
                       Close
                     </button>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* TAB 2: PASSWORD MANAGER & VAULT */}
-        {/* ========================================================= */}
-        {activeTab === "passwords" && (
-          <div className="space-y-6">
-            {/* RANDOM PASSWORD GENERATOR BOX */}
-            <div className="rounded-3xl border border-brand-500/30 bg-gradient-to-r from-brand-950/60 via-slate-900 to-sky-950/60 p-6 shadow-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-brand-600 flex items-center justify-center">
-                    <KeyRound className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-white">Random Password Generator</h2>
-                    <p className="text-xs text-slate-400">Generate secure encrypted passwords for staff or students</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleGeneratePassword}
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-500 transition-all shadow-lg"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" /> Generate New
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative flex-1 w-full">
-                  <input
-                    type="text"
-                    readOnly
-                    value={generatedPass}
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-base font-bold text-emerald-400 focus:outline-none"
-                  />
-                  <button
-                    onClick={() => copyToClipboard(generatedPass, "Generated Password")}
-                    className="absolute right-2 top-2 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-500 transition-all flex items-center gap-1"
-                  >
-                    <Copy className="h-3.5 w-3.5" /> Copy
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 font-semibold">Length:</span>
-                  {[12, 16, 24].map((len) => (
-                    <button
-                      key={len}
-                      onClick={() => {
-                        setGenLength(len);
-                        setGeneratedPass(generateRandomPassword(len));
-                      }}
-                      className={`rounded-xl border px-3 py-2 text-xs font-bold transition-all ${
-                        genLength === len
-                          ? "border-brand-500 bg-brand-600 text-white"
-                          : "border-white/10 bg-slate-950 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      {len} chars
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* SAVED PASSWORDS VAULT HEADER */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-brand-400" /> Admin Credentials Vault
-                </h3>
-                <p className="text-xs text-slate-400">Store and manage official account login details securely</p>
-              </div>
-
-              <button
-                onClick={() => setShowAddPassModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-brand-500 transition-all shadow-lg"
-              >
-                <Plus className="h-4 w-4" /> Add Credential
-              </button>
-            </div>
-
-            {/* PASSWORDS VAULT GRID */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {passwords.map((p) => {
-                const isVisible = visiblePassIds[p.id] || false;
-                return (
-                  <div key={p.id} className="rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-xl space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-300 border border-white/5">
-                          {p.category}
-                        </span>
-                        <h4 className="mt-2 text-base font-bold text-white">{p.serviceName}</h4>
-                      </div>
-
-                      <button
-                        onClick={() => handleDeleteCredential(p.id, p.serviceName)}
-                        className="text-slate-500 hover:text-red-400 transition-colors p-1"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs">
-                      <div className="text-slate-400 flex items-center justify-between">
-                        <span>Username:</span>
-                        <span className="font-mono text-white font-bold">{p.username}</span>
-                      </div>
-
-                      <div className="text-slate-400 flex items-center justify-between">
-                        <span>Password:</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-emerald-400 font-bold">
-                            {isVisible ? p.password : "••••••••••••"}
-                          </span>
-                          <button
-                            onClick={() =>
-                              setVisiblePassIds((prev) => ({ ...prev, [p.id]: !prev[p.id] }))
-                            }
-                            className="text-slate-400 hover:text-white"
-                            title={isVisible ? "Hide Password" : "Show Password"}
-                          >
-                            {isVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => copyToClipboard(p.password, `${p.serviceName} Password`)}
-                      className="w-full mt-2 rounded-xl border border-white/10 bg-slate-950 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Copy className="h-3.5 w-3.5" /> Copy Password
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* ADD CREDENTIAL MODAL */}
-            {showAddPassModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-                <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <Plus className="h-4 w-4 text-brand-400" /> Add New Saved Credential
-                    </h3>
-                    <button
-                      onClick={() => setShowAddPassModal(false)}
-                      className="text-slate-400 hover:text-white font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleAddCredential} className="space-y-4 text-xs">
-                    <div>
-                      <label className="block font-bold uppercase text-slate-300 mb-1">Service / Account Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Academy Instagram Account"
-                        value={newServiceName}
-                        onChange={(e) => setNewServiceName(e.target.value)}
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-3.5 py-2.5 text-sm text-white focus:border-brand-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold uppercase text-slate-300 mb-1">Username / Email</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. admin@alephgraphics.et"
-                        value={newUsername}
-                        onChange={(e) => setNewUsername(e.target.value)}
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-3.5 py-2.5 text-sm text-white focus:border-brand-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block font-bold uppercase text-slate-300 mb-1">Password</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          placeholder="Password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3.5 py-2.5 pr-20 text-sm text-white font-mono focus:border-brand-500 focus:outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setNewPassword(generateRandomPassword(16))}
-                          className="absolute right-2 top-2 rounded-lg bg-slate-800 px-2 py-1 text-[10px] font-bold text-brand-300 hover:bg-slate-700"
-                        >
-                          Auto Gen
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-bold uppercase text-slate-300 mb-1">Category</label>
-                      <select
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value as any)}
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-3.5 py-2.5 text-sm text-white focus:border-brand-500 focus:outline-none"
-                      >
-                        <option value="Social Media">Social Media</option>
-                        <option value="Email / Server">Email / Server</option>
-                        <option value="Tools & Software">Tools & Software</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowAddPassModal(false)}
-                        className="rounded-xl border border-white/10 bg-slate-800 px-4 py-2 font-bold text-slate-300 hover:bg-slate-700"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="rounded-xl bg-brand-600 px-5 py-2 font-bold text-white hover:bg-brand-500"
-                      >
-                        Save Credential
-                      </button>
-                    </div>
-                  </form>
                 </div>
               </div>
             )}

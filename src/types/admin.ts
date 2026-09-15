@@ -37,6 +37,7 @@ export interface SocialMediaLinks {
   instagram: string;
   tiktok: string;
   telegram: string;
+  telegramChannel?: string;
   youtube: string;
   linkedin: string;
 }
@@ -54,6 +55,7 @@ export interface SiteSettings {
   phoneAlt?: string;
   whatsapp: string;
   telegram: string;
+  telegramChannel?: string;
   email: string;
   mapUrl: string;
   logoImage: string;
@@ -62,6 +64,10 @@ export interface SiteSettings {
   workingHoursStart?: string;
   workingHoursEnd?: string;
   workingDays?: string;
+  satHoursStart?: string;
+  satHoursEnd?: string;
+  sunHoursStart?: string;
+  sunHoursEnd?: string;
   prices: CoursePrices;
   social: SocialMediaLinks;
 }

@@ -14,7 +14,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   phone2: "",
   phoneAlt: "",
   whatsapp: "",
-  telegram: CONTACT.telegram,
+  telegram: "https://t.me/alephcontact",
+  telegramChannel: "https://t.me/alephgraphics",
   email: CONTACT.email,
   mapUrl: CONTACT.mapUrl,
   logoImage: "",
@@ -22,7 +23,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   addressAm: "ቦሌ መንገድ፣ ኤድና ሞል አጠገብ፣ 3ኛ ፎቅ፣ አዲስ አበባ፣ ኢትዮጵያ",
   workingHoursStart: "08:30",
   workingHoursEnd: "17:30",
-  workingDays: "Mon-Sat",
+  workingDays: "Mon-Fri",
+  satHoursStart: "08:30",
+  satHoursEnd: "12:30",
+  sunHoursStart: "",
+  sunHoursEnd: "",
   prices: { ...DEFAULT_PRICES },
   social: { ...CONTACT.social },
 };
@@ -30,13 +35,13 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 let settingsCache: SiteSettings = { ...DEFAULT_SETTINGS };
 let commentsCache: StudentComment[] = [];
 
-const SOCIAL_KEYS: (keyof SiteSettings["social"])[] = ["facebook", "instagram", "tiktok", "telegram", "youtube", "linkedin"];
+const SOCIAL_KEYS: (keyof SiteSettings["social"])[] = ["facebook", "instagram", "tiktok", "telegram", "telegramChannel", "youtube", "linkedin"];
 const COURSE_KEYS: (keyof CoursePrices)[] = ["photoshop", "illustrator", "graphic", "video"];
 
 function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
   const social = {} as SiteSettings["social"];
   for (const key of SOCIAL_KEYS) {
-    social[key] = raw.social && typeof raw.social[key] === "string" ? (raw.social[key] as string) : DEFAULT_SETTINGS.social[key];
+    social[key] = (raw.social && typeof raw.social[key] === "string" ? raw.social[key] : (DEFAULT_SETTINGS.social[key] || "")) as any;
   }
 
   const prices = {} as CoursePrices;
@@ -50,6 +55,7 @@ function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
     phoneAlt: typeof raw.phoneAlt === "string" ? raw.phoneAlt : DEFAULT_SETTINGS.phoneAlt,
     whatsapp: typeof raw.whatsapp === "string" ? raw.whatsapp : DEFAULT_SETTINGS.whatsapp,
     telegram: typeof raw.telegram === "string" ? raw.telegram : DEFAULT_SETTINGS.telegram,
+    telegramChannel: typeof (raw as any).telegramChannel === "string" ? (raw as any).telegramChannel : DEFAULT_SETTINGS.telegramChannel,
     email: typeof raw.email === "string" ? raw.email : DEFAULT_SETTINGS.email,
     mapUrl: typeof raw.mapUrl === "string" ? raw.mapUrl : DEFAULT_SETTINGS.mapUrl,
     logoImage: typeof raw.logoImage === "string" ? raw.logoImage : DEFAULT_SETTINGS.logoImage,
@@ -58,6 +64,10 @@ function fillDefaults(raw: Partial<SiteSettings>): SiteSettings {
     workingHoursStart: typeof raw.workingHoursStart === "string" ? raw.workingHoursStart : DEFAULT_SETTINGS.workingHoursStart,
     workingHoursEnd: typeof raw.workingHoursEnd === "string" ? raw.workingHoursEnd : DEFAULT_SETTINGS.workingHoursEnd,
     workingDays: typeof raw.workingDays === "string" ? raw.workingDays : DEFAULT_SETTINGS.workingDays,
+    satHoursStart: typeof raw.satHoursStart === "string" ? raw.satHoursStart : DEFAULT_SETTINGS.satHoursStart,
+    satHoursEnd: typeof raw.satHoursEnd === "string" ? raw.satHoursEnd : DEFAULT_SETTINGS.satHoursEnd,
+    sunHoursStart: typeof raw.sunHoursStart === "string" ? raw.sunHoursStart : DEFAULT_SETTINGS.sunHoursStart,
+    sunHoursEnd: typeof raw.sunHoursEnd === "string" ? raw.sunHoursEnd : DEFAULT_SETTINGS.sunHoursEnd,
     prices,
     social,
   };
