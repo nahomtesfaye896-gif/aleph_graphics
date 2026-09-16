@@ -59,7 +59,7 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
   const [loginError, setLoginError] = useState("");
 
   // Tab state: "applicants" | "passwords" | "settings" | "courses"
-  const [activeTab, setActiveTab] = useState<"applicants" | "passwords" | "settings" | "courses" | "site-settings">("applicants");
+  const [activeTab, setActiveTab] = useState<"applicants" | "settings" | "courses" | "site-settings">("applicants");
 
   // Data states
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -333,16 +333,7 @@ export function AdminPanel({ onBackToSite }: AdminPanelProps) {
             )}
           </button>
 
-          <button
-            onClick={() => setActiveTab("passwords")}
-            className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-all ${
-              activeTab === "passwords"
-                ? "bg-brand-600 text-white shadow-lg shadow-brand-600/30"
-                : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
-            }`}
-          >
-            <Key className="h-4 w-4" /> Password Manager & Vault
-          </button>
+          
 
           <button
             onClick={() => setActiveTab("settings")}

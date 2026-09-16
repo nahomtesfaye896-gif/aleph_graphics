@@ -96,7 +96,7 @@ class Course(models.Model):
     learn_en = models.JSONField(default=list)  # ["item1", "item2", ...]
     learn_am = models.JSONField(default=list)
     tools = models.JSONField(default=list)  # ["Photoshop", "Figma", ...]
-    image = models.CharField(max_length=1000, blank=True, default='')
+    image = models.TextField(blank=True, default='')
     accent = models.CharField(max_length=255, default='from-sky-500 to-blue-700')
     fee_etb = models.CharField(max_length=50, blank=True, default='')
     popular = models.BooleanField(default=False)

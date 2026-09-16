@@ -142,7 +142,7 @@ export function addStudentComment(data: Omit<StudentComment, "id" | "createdAt" 
     ...data,
     id: `comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     createdAt: new Date().toISOString(),
-    approved: false,
+    approved: true,
   };
   const updated = [newComment, ...current];
   commentsCache = updated;

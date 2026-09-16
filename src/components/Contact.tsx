@@ -87,28 +87,42 @@ export function Contact() {
       hasError ? "border-red-400 focus:border-red-500 focus:ring-red-100" : "border-ink-900/10 focus:border-brand-500 focus:ring-brand-100",
     );
 
+  const format12h = (timeStr?: string) => {
+    if (!timeStr) return "";
+    const [hStr, mStr] = timeStr.split(':');
+    let h = parseInt(hStr, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${mStr} ${ampm}`;
+  };
+
   const getWorkingHoursStatus = () => {
-    if (!settings.workingHoursStart || !settings.workingHoursEnd) return null;
-    
-    // Get current time in Ethiopia (UTC+3)
     const now = new Date();
     const ethiopiaTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3 * 3600000));
-    
-    const currentHours = ethiopiaTime.getHours();
-    const currentMinutes = ethiopiaTime.getMinutes();
-    const currentTime = currentHours * 60 + currentMinutes;
-    
-    const [startH, startM] = settings.workingHoursStart.split(':').map(Number);
-    const [endH, endM] = settings.workingHoursEnd.split(':').map(Number);
-    
+    const currentTime = ethiopiaTime.getHours() * 60 + ethiopiaTime.getMinutes();
+    const day = ethiopiaTime.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
+
+    let startStr, endStr;
+    if (day === 0) {
+      startStr = settings.sunHoursStart;
+      endStr = settings.sunHoursEnd;
+    } else if (day === 6) {
+      startStr = settings.satHoursStart;
+      endStr = settings.satHoursEnd;
+    } else {
+      startStr = settings.workingHoursStart;
+      endStr = settings.workingHoursEnd;
+    }
+
+    if (!startStr || !endStr) return { isOpen: false, text: lang === 'am' ? 'ዝግ ነው' : 'Closed' };
+
+    const [startH, startM] = startStr.split(':').map(Number);
+    const [endH, endM] = endStr.split(':').map(Number);
     const startTime = (startH * 60) + (startM || 0);
     const endTime = (endH * 60) + (endM || 0);
-    
-    // Simple day check (Mon-Sat = 1-6)
-    const day = ethiopiaTime.getDay();
-    const isWorkingDay = day !== 0; // Assuming Sunday is closed
-    
-    if (isWorkingDay && currentTime >= startTime && currentTime < endTime) {
+
+    if (currentTime >= startTime && currentTime < endTime) {
       return { isOpen: true, text: lang === 'am' ? 'ክፍት ነው' : 'Open Now' };
     }
     return { isOpen: false, text: lang === 'am' ? 'ዝግ ነው' : 'Closed' };
@@ -182,19 +196,32 @@ export function Contact() {
                     <Clock className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300 flex items-center gap-2">
-                      {t.contact.hours}
+                    <div className="flex items-center gap-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-300">{t.contact.hours}</p>
                       {statusObj && (
-                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", statusObj.isOpen ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400")}>
+                        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider", statusObj.isOpen ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400")}>
                           {statusObj.text}
                         </span>
                       )}
-                    </p>
-                    <p className="mt-1 whitespace-pre-line text-sm font-medium leading-relaxed text-white/90">
-                      {settings.workingDays || 'Mon-Sat'}: {settings.workingHoursStart} - {settings.workingHoursEnd}
-                      <br />
-                      Sunday: Closed
-                    </p>
+                    </div>
+                    
+                    <div className="mt-1 space-y-1 text-sm font-medium leading-relaxed text-white/90">
+                      {settings.workingHoursStart && settings.workingHoursEnd && (
+                        <p>{settings.workingDays || 'Mon-Fri'}: {format12h(settings.workingHoursStart)} - {format12h(settings.workingHoursEnd)}</p>
+                      )}
+                      
+                      {settings.satHoursStart && settings.satHoursEnd ? (
+                        <p>Saturday: {format12h(settings.satHoursStart)} - {format12h(settings.satHoursEnd)}</p>
+                      ) : (
+                        <p>Saturday: Closed</p>
+                      )}
+                      
+                      {settings.sunHoursStart && settings.sunHoursEnd ? (
+                        <p>Sunday: {format12h(settings.sunHoursStart)} - {format12h(settings.sunHoursEnd)}</p>
+                      ) : (
+                        <p>Sunday: Closed</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
