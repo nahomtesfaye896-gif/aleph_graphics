@@ -1,10 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { ChevronLeft, ChevronRight, Loader2, MessageSquarePlus, Quote, Send, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
 import { useLang } from "../i18n/LanguageContext";
 import { cn } from "../utils/cn";
-import { addStudentComment, fetchStudentCommentsFromSupabase, getStudentComments, persistCommentsLocal } from "../utils/siteSettings";
+import { fetchStudentCommentsFromSupabase, getStudentComments, persistCommentsLocal } from "../utils/siteSettings";
 
 const COLORS = ["from-brand-500 to-brand-700", "from-sky-500 to-blue-600", "from-indigo-500 to-brand-700", "from-blue-600 to-ink-900"];
 
@@ -16,16 +16,11 @@ interface TestimonialItem {
 }
 
 export function Testimonials() {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [studentItems, setStudentItems] = useState<TestimonialItem[]>([]);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  const [cName, setCName] = useState("");
-  const [cRole, setCRole] = useState("");
-  const [cText, setCText] = useState("");
-  const [cErrors, setCErrors] = useState<{ name?: string; text?: string }>({});
-  const [cStatus, setCStatus] = useState<"idle" | "sending" | "done">("idle");
 
   useEffect(() => {
     let cancelled = false;
@@ -60,33 +55,6 @@ export function Testimonials() {
   }, [paused, items.length]);
 
   const go = (dir: number) => setIndex((i) => (i + dir + items.length) % items.length);
-
-  const handleCommentSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const errors: { name?: string; text?: string } = {};
-    if (cName.trim().length < 2) errors.name = lang === "am" ? "እባክዎ ስምዎን ያስገቡ" : "Please enter your name";
-    if (cText.trim().length < 5) errors.text = lang === "am" ? "እባክዎ አስተያየትዎን ያስገቡ" : "Please write your comment";
-    setCErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    setCStatus("sending");
-    window.setTimeout(() => {
-      try {
-        addStudentComment({
-          name: cName.trim(),
-          role: cRole.trim(),
-          text: cText.trim(),
-        });
-      } catch (_) {}
-      setCStatus("done");
-    }, 500);
-  };
-
-  const inputCls = (hasError?: string) =>
-    cn(
-      "w-full rounded-xl border bg-white px-4 py-3 text-sm text-ink-900 outline-none transition-all placeholder:text-ink-700/40 focus:ring-4",
-      hasError ? "border-red-400 focus:border-red-500 focus:ring-red-100" : "border-ink-900/10 focus:border-brand-500 focus:ring-brand-100",
-    );
 
   return (
     <section id="testimonials" className="relative overflow-hidden bg-slate-50 py-20 lg:py-28">
@@ -171,77 +139,7 @@ export function Testimonials() {
           </div>
         </Reveal>
 
-        {/* Student comment form */}
-        <Reveal className="mt-14">
-          <div className="mx-auto max-w-2xl rounded-3xl border border-ink-900/5 bg-white p-7 shadow-lg shadow-ink-900/5 sm:p-9">
-            {cStatus === "done" ? (
-              <div className="text-center py-6">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30">
-                  <MessageSquarePlus className="h-7 w-7" />
-                </div>
-                <h4 className="mt-4 text-xl font-black text-ink-900">{t.comments.success}</h4>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCName("");
-                    setCRole("");
-                    setCText("");
-                    setCErrors({});
-                    setCStatus("idle");
-                  }}
-                  className="mt-5 text-sm font-bold text-brand-700 underline-offset-4 hover:underline"
-                >
-                  {t.comments.another}
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
-                    <MessageSquarePlus className="h-5 w-5" />
-                  </div>
-                  <div>
-                      <h3 className="text-xl font-black tracking-tight text-ink-900">{t.comments?.sectionTitle ?? ""}</h3>
-                    <p className="text-sm text-ink-700/70">{t.comments.subtitle}</p>
-                  </div>
-                </div>
-
-                <form onSubmit={handleCommentSubmit} noValidate className="mt-6 grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="c-name" className="mb-1.5 block text-sm font-semibold text-ink-900">
-                      {t.comments.name} <span className="text-red-500">*</span>
-                    </label>
-                    <input id="c-name" value={cName} onChange={(e) => setCName(e.target.value)} placeholder={t.comments.namePh} className={inputCls(cErrors.name)} autoComplete="name" />
-                    {cErrors.name && <p className="mt-1.5 text-xs font-medium text-red-600">{cErrors.name}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="c-role" className="mb-1.5 block text-sm font-semibold text-ink-900">
-                      {t.comments.role}
-                    </label>
-                    <input id="c-role" value={cRole} onChange={(e) => setCRole(e.target.value)} placeholder={t.comments.rolePh} className={inputCls()} autoComplete="organization-title" />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label htmlFor="c-text" className="mb-1.5 block text-sm font-semibold text-ink-900">
-                      {t.comments.text} <span className="text-red-500">*</span>
-                    </label>
-                    <textarea id="c-text" rows={3} value={cText} onChange={(e) => setCText(e.target.value)} placeholder={t.comments.textPh} className={cn(inputCls(cErrors.text), "resize-none")} />
-                    {cErrors.text && <p className="mt-1.5 text-xs font-medium text-red-600">{cErrors.text}</p>}
-                  </div>
-                  <div className="sm:col-span-2">
-                    <button
-                      type="submit"
-                      disabled={cStatus === "sending"}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-7 py-4 text-base font-bold text-white shadow-xl shadow-brand-600/30 transition-all hover:-translate-y-0.5 hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
-                    >
-                      {cStatus === "sending" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                      {cStatus === "sending" ? t.comments.sending : t.comments.submit}
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-          </div>
-        </Reveal>
+        
       </div>
     </section>
   );
