@@ -26,7 +26,7 @@ export function Testimonials() {
     let cancelled = false;
     const apply = (comments: Awaited<ReturnType<typeof getStudentComments>>) => {
       if (cancelled) return;
-      setStudentItems(comments.filter((c) => c.approved).map((c) => ({ key: c.id, name: c.name, role: c.role, text: c.text })));
+      setStudentItems(comments.filter((c) => c.approved && c.name !== "Ffffff" && !c.text.includes("Rrrrff")).map((c) => ({ key: c.id, name: c.name, role: c.role, text: c.text })));
     };
     fetchStudentCommentsFromSupabase()
       .then((remote) => {
