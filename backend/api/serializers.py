@@ -48,14 +48,14 @@ class StudentCommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'role', 'text', 'approved', 'createdAt']
 
 class CourseSerializer(serializers.ModelSerializer):
-    nameEn = serializers.CharField(source='name_en')
-    nameAm = serializers.CharField(source='name_am', required=False, allow_blank=True)
-    taglineEn = serializers.CharField(source='tagline_en', required=False, allow_blank=True)
-    taglineAm = serializers.CharField(source='tagline_am', required=False, allow_blank=True)
-    descEn = serializers.CharField(source='desc_en', required=False, allow_blank=True)
-    descAm = serializers.CharField(source='desc_am', required=False, allow_blank=True)
-    longEn = serializers.CharField(source='long_en', required=False, allow_blank=True)
-    longAm = serializers.CharField(source='long_am', required=False, allow_blank=True)
+    nameEn = serializers.CharField(source='name_en', max_length=None)
+    nameAm = serializers.CharField(source='name_am', required=False, allow_blank=True, max_length=None)
+    taglineEn = serializers.CharField(source='tagline_en', required=False, allow_blank=True, max_length=None)
+    taglineAm = serializers.CharField(source='tagline_am', required=False, allow_blank=True, max_length=None)
+    descEn = serializers.CharField(source='desc_en', required=False, allow_blank=True, max_length=None)
+    descAm = serializers.CharField(source='desc_am', required=False, allow_blank=True, max_length=None)
+    longEn = serializers.CharField(source='long_en', required=False, allow_blank=True, max_length=None)
+    longAm = serializers.CharField(source='long_am', required=False, allow_blank=True, max_length=None)
     learnEn = serializers.JSONField(source='learn_en', required=False)
     learnAm = serializers.JSONField(source='learn_am', required=False)
     feeEtb = serializers.CharField(source='fee_etb', required=False, allow_blank=True)
