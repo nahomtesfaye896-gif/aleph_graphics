@@ -117,7 +117,7 @@ export function AdminCourses() {
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-300">Unique Key (slug)</label>
-              <input required type="text" value={currentCourse.key || ""} onChange={(e) => setCurrentCourse({ ...currentCourse, key: e.target.value })} className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30" placeholder="e.g. photoshop" />
+              <input required type="text" value={currentCourse.key || ""} onChange={(e) => setCurrentCourse({ ...currentCourse, key: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-") })} className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-2.5 text-white placeholder-slate-500 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30" placeholder="e.g. photoshop" />
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-300">Sort Order</label>
